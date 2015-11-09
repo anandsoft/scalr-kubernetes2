@@ -1,0 +1,81 @@
+From dd2a77f73a670790bfa2e5d0b52203b5c06b0134 Mon Sep 17 00:00:00 2001
+From: Daniele Testa <daniele.testa@gmail.com>
+Date: Fri, 6 Nov 2015 16:57:18 +0000
+Subject: [PATCH] Always use $SSH_OPTS on SSH connections
+
+---
+ cluster/ubuntu/util.sh | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/cluster/ubuntu/util.sh b/cluster/ubuntu/util.sh
+index a2d41c5..c605996 100755
+--- a/cluster/ubuntu/util.sh
++++ b/cluster/ubuntu/util.sh
+@@ -424,15 +424,15 @@ function kube-down {
+     {
+       echo "Cleaning on node ${i#*@}"
+       if [[ "${roles[${ii}]}" == "ai" || "${roles[${ii}]}" == "a" ]]; then
+-        ssh -t $i 'pgrep etcd && sudo -p "[sudo] password to stop master: " service etcd stop && sudo rm -rf /infra*; 
++        ssh $SSH_OPTS -t $i 'pgrep etcd && sudo -p "[sudo] password to stop master: " service etcd stop && sudo rm -rf /infra*; 
+           sudo rm -rf /opt/bin/etcd* /etc/init/etcd.conf /etc/init.d/etcd /etc/default/etcd'
+       elif [[ "${roles[${ii}]}" == "i" ]]; then
+-        ssh -t $i 'pgrep flanneld && sudo -p "[sudo] password to stop node: " service flanneld stop'
++        ssh $SSH_OPTS -t $i 'pgrep flanneld && sudo -p "[sudo] password to stop node: " service flanneld stop'
+       else
+         echo "unsupported role for ${i}"
+       fi
+       # Delete the files in order to generate a clean environment, so you can change each node's role at next deployment.
+-      ssh -t $i 'sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
++      ssh $SSH_OPTS -t $i 'sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
+       sudo rm -rf /etc/init/kube* /etc/init/flanneld.conf /etc/init.d/kube* /etc/init.d/flanneld;
+       sudo rm -rf /etc/default/kube* /etc/default/flanneld; 
+       sudo rm -rf ~/kube /var/lib/kubelet;
+@@ -475,7 +475,7 @@ function push-master {
+   for i in ${nodes}; do
+     if [[ "${roles[${ii}]}" == "a" ]]; then
+       echo "Cleaning master ${i#*@}"
+-      ssh -t $i 'sudo -p "[sudo] stop the all process: " service etcd stop;
++      ssh $SSH_OPTS -t $i 'sudo -p "[sudo] stop the all process: " service etcd stop;
+       sudo rm -rf /opt/bin/etcd* /etc/init/etcd.conf /etc/init.d/etcd /etc/default/etcd;
+       sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
+       sudo rm -rf /etc/init/kube* /etc/init/flanneld.conf /etc/init.d/kube* /etc/init.d/flanneld;
+@@ -484,7 +484,7 @@ function push-master {
+       provision-master
+     elif [[ "${roles[${ii}]}" == "ai" ]]; then 
+       echo "Cleaning master ${i#*@}"
+-      ssh -t $i 'sudo -p "[sudo] stop the all process: " service etcd stop;
++      ssh $SSH_OPTS -t $i 'sudo -p "[sudo] stop the all process: " service etcd stop;
+       sudo rm -rf /opt/bin/etcd* /etc/init/etcd.conf /etc/init.d/etcd /etc/default/etcd;
+       sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
+       sudo rm -rf /etc/init/kube* /etc/init/flanneld.conf /etc/init.d/kube* /etc/init.d/flanneld;
+@@ -519,7 +519,7 @@ function push-node() {
+   for i in ${nodes}; do
+     if [[ "${roles[${ii}]}" == "i" && ${i#*@} == $node_ip ]]; then
+       echo "Cleaning node ${i#*@}"
+-      ssh -t $i 'sudo -p "[sudo] stop the all process: " service flanneld stop;
++      ssh $SSH_OPTS -t $i 'sudo -p "[sudo] stop the all process: " service flanneld stop;
+       sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
+       sudo rm -rf /etc/init/kube* /etc/init/flanneld.conf /etc/init.d/kube* /etc/init.d/flanneld;
+       sudo rm -rf /etc/default/kube* /etc/default/flanneld; 
+@@ -562,15 +562,15 @@ function kube-push {
+     {
+       echo "Cleaning on node ${i#*@}"
+       if [[ "${roles[${ii}]}" == "ai" || "${roles[${ii}]}" == "a" ]]; then
+-        ssh -t $i 'pgrep etcd && sudo -p "[sudo] password to stop master: " service etcd stop; 
++        ssh $SSH_OPTS -t $i 'pgrep etcd && sudo -p "[sudo] password to stop master: " service etcd stop; 
+         sudo rm -rf /opt/bin/etcd* /etc/init/etcd.conf /etc/init.d/etcd /etc/default/etcd' || true
+       elif [[ "${roles[${ii}]}" == "i" ]]; then
+-        ssh -t $i 'pgrep flanneld && sudo -p "[sudo] password to stop node: " service flanneld stop' || true
++        ssh $SSH_OPTS -t $i 'pgrep flanneld && sudo -p "[sudo] password to stop node: " service flanneld stop' || true
+       else
+         echo "unsupported role for ${i}"
+       fi
+ 
+-      ssh -t $i 'sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
++      ssh $SSH_OPTS -t $i 'sudo rm -f /opt/bin/kube* /opt/bin/flanneld;
+       sudo rm -rf /etc/init/kube* /etc/init/flanneld.conf /etc/init.d/kube* /etc/init.d/flanneld;
+       sudo rm -rf /etc/default/kube* /etc/default/flanneld; 
+       sudo rm -rf ~/kube' || true
+-- 
+1.9.1
+
