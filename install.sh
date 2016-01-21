@@ -2,6 +2,9 @@
 set -o errexit
 set -o nounset
 
+# Send anonymous usage statistics to Scalr. Comment the next line to disable.
+curl "http://tools.scalr.club/counter/hit.php?id=4" || true
+
 # Check if running debian or redhat based OS
 if ! type "apt-get" 2>&1 > /dev/null; then
   OS="REDHAT"
