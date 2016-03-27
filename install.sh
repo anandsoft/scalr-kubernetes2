@@ -25,7 +25,7 @@ if [ "$K8S_ROLE" == "MASTER" ]; then
       systemctl status $SERVICES 
     done
 
-    etcdctl mk /coreos.com/network/config '{"Network":"172.17.0.0/16"}'
+    etcdctl mk /atomic.io/network/config '{"Network":"172.17.0.0/16"}'
   else
     echo "Ubuntu"
   fi
@@ -54,3 +54,4 @@ else
   fi
 
 fi
+
