@@ -20,6 +20,7 @@ KUBE_ETCD_SERVERS="--etcd-servers=http://master.k8s:2379"
 KUBE_LOGTOSTDERR="--logtostderr=true"
 KUBE_LOG_LEVEL="--v=0"
 KUBE_ALLOW_PRIV="--allow-privileged=false"
+KUBE_MASTER="--master=http://master.k8s:8080"
 EOL
 
 else
@@ -82,7 +83,7 @@ FLANNEL_ETCD="http://${K8S_MASTER}:2379"
 FLANNEL_ETCD_KEY="/kubernetes.io/network"
 EOL
 
-	for SERVICES in kube-proxy kubelet docker; do
+	for SERVICES in flanneld kube-proxy kubelet docker; do
     	systemctl restart $SERVICES
     	systemctl enable $SERVICES
     	systemctl status $SERVICES 
